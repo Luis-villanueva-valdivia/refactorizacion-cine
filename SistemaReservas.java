@@ -66,7 +66,7 @@ public class SistemaReservas {
             // REFACTOR: ocupados ya es privada, así que se libera el asiento con liberar().
             r.funcion.liberar(a);
         }
-        r.setCancelada(true);
+        r.cancelar();
         return 0;
     }
 

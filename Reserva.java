@@ -15,7 +15,12 @@ public class Reserva {
         this.asientos = asientos;
     }
 
-    public void setCancelada(boolean cancelada) {
-        this.cancelada = cancelada;
+    //Tecnica utilizada: Remove setting method
+    /* Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    Eliminamos setCancelada(boolean), debido a que esta accion permitia descancelar una reserva
+    Se agrego cancelar(), permite marcar la reserva como cancelada
+     */
+    public void cancelar() {
+        this.cancelada = true;
     }
 }
