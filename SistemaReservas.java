@@ -53,7 +53,9 @@ public class SistemaReservas {
     }
 
     public double calcularPrecioSocio(Reserva r) {
-        return descuentoDel15(precioBase(r));
+        // Tecnica usada: Parameterize method
+        // Refactor: se usa aplicarDescuento() con 0.15 en lugar de descuentoDel15().
+        return aplicarDescuento(precioBase(r), 0.15);
     }
 
     // Tecnica usada: Replace parameter with method
@@ -64,12 +66,12 @@ public class SistemaReservas {
         return r.funcion.precio * r.asientos.size();
     }
 
-    public double descuentoDel15(double p) {
-        return p - p * 0.15;
-    }
-
-    public double descuentoDel25(double p) {   // duplicado, sin uso
-        return p - p * 0.25;
+    // Tecnica usada: Parameterize method
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - descuentoDel15() y descuentoDel25() se reemplazaron por aplicarDescuento(precio, porcentaje).
+    //   - El porcentaje se pasa como parametro (0.15 = 15%).
+    public double aplicarDescuento(double precio, double porcentaje) {
+        return precio - precio * porcentaje;
     }
 
     public int cancelar(int id) {
