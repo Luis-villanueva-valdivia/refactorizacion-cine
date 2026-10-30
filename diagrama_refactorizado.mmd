@@ -1,0 +1,67 @@
+---
+title: Diagrama de clases - Proyecto CINE refactorizado
+---
+classDiagram
+    direction LR
+    class Main {
+        +main(String[] args)$ void
+    }
+    class SistemaReservas {
+        +Map~Integer, Reserva~ db
+        +int contador
+        +reservar(Cliente cliente, Funcion f, SolicitudAsientos solicitud, String canal) int
+        +calcularPrecioGeneral(Reserva r) double
+        +calcularPrecioSocio(Reserva r) double
+        +precioBase(Reserva r) double
+        +aplicarDescuento(double precio, double porcentaje) double
+        +cancelar(int id) void
+        +buscar(int id) Reserva
+    }
+    class Reserva {
+        +int id
+        +Cliente cliente
+        +Funcion funcion
+        +List~String~ asientos
+        +double precio
+        +boolean cancelada
+        +String canal
+        +Reserva(int id, Cliente cliente, Funcion funcion, List~String~ asientos, String canal)
+        +cancelar() void
+    }
+    class Funcion {
+        +String titulo
+        +int sala
+        +String hora
+        +double precio
+        -List~String~ ocupados
+        +Funcion(String titulo, int sala, String hora, double precio)
+        +estaLibre(char fila, int numero) boolean
+        +marcarOcupado(char fila, int numero) void
+        +getOcupados() List~String~
+        +liberar(String codigo) void
+    }
+    class Cliente {
+        +String nombre
+        +String email
+        +boolean socio
+        +Cliente(String nombre, String email, boolean socio)
+    }
+    class SolicitudAsientos {
+        -char[] filas
+        -int[] numeros
+        +SolicitudAsientos(char[] filas, int[] numeros)
+        +esValida() boolean
+        +cantidad() int
+        +obtenerFila(int indice) char
+        +obtenerNumero(int indice) int
+    }
+    SistemaReservas "1" o-- "0..*" Reserva : db
+    Reserva "0..*" --> "1" Cliente : cliente
+    Reserva "0..*" --> "1" Funcion : funcion
+    SistemaReservas ..> SolicitudAsientos : usa
+    SistemaReservas ..> Funcion : usa
+    SistemaReservas ..> Cliente : usa
+    Main ..> SistemaReservas : usa
+    Main ..> Funcion : crea
+    Main ..> Cliente : crea
+    Main ..> SolicitudAsientos : crea
