@@ -10,6 +10,7 @@ public class SistemaReservas {
     //   Se eliminaron los casteos (Reserva) en cancelar() y en Main
     public Map<Integer, Reserva> db = new HashMap<>();
     public int contador = 1;
+
     // TÉCNICA UTILIZADA: Rename method
     // REFACTOR: Se renombró hacer() a reservar() porque el nuevo nombre describe claramente la operación.
     // TÉCNICA UTILIZADA: Remove parameter
@@ -21,34 +22,46 @@ public class SistemaReservas {
     // REFACTOR: Se reemplazaron los arreglos paralelos filas y numeros por SolicitudAsientos,
     // agrupando los datos de los asientos en un único parámetro.
     public int reservar(Cliente cliente, Funcion f, SolicitudAsientos solicitud, String canal) {
-        if (cliente == null || cliente.nombre == null || f == null) return -1;
-        if (!solicitud.esValida()) return -2;
-        try {
-            List<String> lista = new ArrayList<>();
-            for (int i = 0; i < solicitud.cantidad(); i++) {
-                // TÉCNICA UTILIZADA: Separate query from modifier
-                // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
-                //   - En lugar de llamar a f.ocupar(), primero se pregunta con f.estaLibre()
-                //     y después se marca con f.marcarOcupado().
-                //   - Se conserva la excepción y el bug de F7 para no cambiar la salida (se corrigen en ISS-07).
-                char fila = solicitud.obtenerFila(i);
-                int numero = solicitud.obtenerNumero(i);
-                if (!f.estaLibre(fila, numero)) {
-                    throw new IllegalStateException("Asiento ocupado: " + fila + numero);
-                }
-                f.marcarOcupado(fila, numero);   // si falla a mitad, los anteriores ya quedaron ocupados
-                lista.add("" + fila + numero);
-            }
-            Reserva r = new Reserva(contador, cliente, f, lista, canal);
-            // Tecnica usada: Replace parameter with explicit methods
-            // Refactor: se llama al metodo explicito segun el cliente, en lugar de pasar "socio"/"general".
-            r.precio = cliente.socio ? calcularPrecioSocio(r) : calcularPrecioGeneral(r);
-            db.put(contador, r);
-            contador++;
-            return r.id;
-        } catch (IllegalStateException e) {
-            return -3;
+        // TÉCNICA UTILIZADA: Replace error code with exception
+        // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+        //   - Los códigos -1, -2 y -3 se reemplazaron por excepciones con un mensaje claro.
+        //   - -1 (datos faltantes) y -2 (asientos inválidos) -> IllegalArgumentException.
+        //   - -3 (asiento ocupado) -> IllegalStateException.
+        //   - El método solo devuelve el id cuando la reserva se hizo bien.
+        if (cliente == null || cliente.nombre == null || f == null) {
+            throw new IllegalArgumentException("Faltan datos del cliente o de la función");
         }
+        if (!solicitud.esValida()) {
+            throw new IllegalArgumentException("La lista de asientos no es válida");
+        }
+        // TÉCNICA UTILIZADA: Replace exception with test
+        // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+        //   - Se quitó el try/catch (IllegalStateException) que se usaba para controlar el flujo.
+        //   - Ahora primero se revisan TODOS los asientos con f.estaLibre() y, solo si todos
+        //     están libres, se marcan con f.marcarOcupado().
+        //   - Esto corrige el bug de F7: si un asiento está ocupado no se marca ninguno,
+        //     así que Luis ya no deja asientos bloqueados (único cambio de comportamiento permitido).
+        for (int i = 0; i < solicitud.cantidad(); i++) {
+            char fila = solicitud.obtenerFila(i);
+            int numero = solicitud.obtenerNumero(i);
+            if (!f.estaLibre(fila, numero)) {
+                throw new IllegalStateException("Asiento ocupado: " + fila + numero);
+            }
+        }
+        List<String> lista = new ArrayList<>();
+        for (int i = 0; i < solicitud.cantidad(); i++) {
+            char fila = solicitud.obtenerFila(i);
+            int numero = solicitud.obtenerNumero(i);
+            f.marcarOcupado(fila, numero);
+            lista.add("" + fila + numero);
+        }
+        Reserva r = new Reserva(contador, cliente, f, lista, canal);
+        // Tecnica usada: Replace parameter with explicit methods
+        // Refactor: se llama al metodo explicito segun el cliente, en lugar de pasar "socio"/"general".
+        r.precio = cliente.socio ? calcularPrecioSocio(r) : calcularPrecioGeneral(r);
+        db.put(contador, r);
+        contador++;
+        return r.id;
     }
     // Tecnica usada: Replace parameter with explicit methods
     // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
@@ -76,19 +89,28 @@ public class SistemaReservas {
     public double aplicarDescuento(double precio, double porcentaje) {
         return precio - precio * porcentaje;
     }
-    public int cancelar(int id) {
-        // Tecnica usada: Encapsulate downcast
-        // Refactor: se usa buscar(), que ya devuelve Reserva, en lugar de (Reserva) db.get(id).
+
+    // TÉCNICA UTILIZADA: Replace error code with exception
+    // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+    //   - cancelar() ya no devuelve 0, -1 o -2; ahora es void.
+    //   - Si la reserva no existe lanza IllegalArgumentException.
+    //   - Si ya estaba cancelada lanza IllegalStateException.
+    public void cancelar(int id) {
+        // TÉCNICA UTILIZADA: Encapsulate downcast
+        // REFACTOR: se usa buscar(), que ya devuelve Reserva, en lugar de (Reserva) db.get(id).
         Reserva r = buscar(id);
-        if (r == null) return -1;
-        if (r.cancelada) return -2;
+        if (r == null) {
+            throw new IllegalArgumentException("No existe la reserva " + id);
+        }
+        if (r.cancelada) {
+            throw new IllegalStateException("La reserva " + id + " ya estaba cancelada");
+        }
         for (String a : r.asientos) {
             // TÉCNICA UTILIZADA: Hide method
             // REFACTOR: ocupados ya es privada, así que se libera el asiento con liberar().
             r.funcion.liberar(a);
         }
         r.cancelar();
-        return 0;
     }
     // Tecnica usada: Encapsulate downcast
     // Refactor: devuelve Reserva en lugar de Object; quien la usa ya no hace casteo.

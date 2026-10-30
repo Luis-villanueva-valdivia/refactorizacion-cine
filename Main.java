@@ -5,15 +5,26 @@ public class Main {
 
         // TÉCNICA UTILIZADA: Preserve whole object
         // REFACTOR: Se construye cada Cliente completo y se entrega a reservar().
+        // TÉCNICA UTILIZADA: Replace error code with exception
+        // REFACTOR: reservar() y cancelar() ya no devuelven códigos numéricos de error,
+        //   así que Main atrapa las excepciones y muestra un mensaje controlado.
         Cliente anaCliente = new Cliente("Ana", "ana@mail.com", true);
-        int r1 = s.reservar(anaCliente, f,
-                new SolicitudAsientos(new char[]{'F', 'F'}, new int[]{5, 6}), "App");
-        System.out.println("Reserva Ana: " + r1);
-        // F7 se marca como ocupado antes de fallar en F6 (bug)
+        try {
+            int r1 = s.reservar(anaCliente, f,
+                    new SolicitudAsientos(new char[]{'F', 'F'}, new int[]{5, 6}), "App");
+            System.out.println("Reserva Ana: " + r1);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Reserva Ana: Error - " + e.getMessage());
+        }
+        // Ya no queda F7 bloqueado: si F6 está ocupado no se marca ningún asiento
         Cliente luisCliente = new Cliente("Luis", "luis@mail.com", false);
-        int r2 = s.reservar(luisCliente, f,
-                new SolicitudAsientos(new char[]{'F', 'F'}, new int[]{7, 6}), "Taquilla");
-        System.out.println("Reserva Luis: " + r2);
+        try {
+            int r2 = s.reservar(luisCliente, f,
+                    new SolicitudAsientos(new char[]{'F', 'F'}, new int[]{7, 6}), "Taquilla");
+            System.out.println("Reserva Luis: " + r2);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Reserva Luis: Error - " + e.getMessage());
+        }
         // TÉCNICA UTILIZADA: Hide method
         // REFACTOR: ocupados ya es privada, así que se lee con getOcupados().
         System.out.println("Ocupados: " + f.getOcupados());
@@ -22,7 +33,17 @@ public class Main {
         Reserva ana = s.buscar(1);
         System.out.println("Precio Ana (socio): " + ana.precio);
 
-        System.out.println("Cancelar 1: " + s.cancelar(1));
-        System.out.println("Cancelar 99: " + s.cancelar(99));
+        try {
+            s.cancelar(1);
+            System.out.println("Cancelar 1: OK");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Cancelar 1: Error - " + e.getMessage());
+        }
+        try {
+            s.cancelar(99);
+            System.out.println("Cancelar 99: OK");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Cancelar 99: Error - " + e.getMessage());
+        }
     }
 }
