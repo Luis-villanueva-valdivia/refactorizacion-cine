@@ -33,7 +33,9 @@ public class SistemaReservas {
             }
             Cliente c = new Cliente(nombre, email, socio);
             Reserva r = new Reserva(contador, c, f, lista);
-            r.precio = calcularPrecio(r, socio ? "socio" : "general");
+            // Tecnica usada: Replace parameter with explicit methods
+            // Refactor: se llama al metodo explicito segun el cliente, en lugar de pasar "socio"/"general".
+            r.precio = socio ? calcularPrecioSocio(r) : calcularPrecioGeneral(r);
             db.put(contador, r);
             contador++;
             return r.id;
@@ -42,17 +44,16 @@ public class SistemaReservas {
         }
     }
 
-    // Tipo de tarifa como String y if/else
-    public double calcularPrecio(Reserva r, String tipo) {
-        // Tecnica usada: Replace parameter with method
-        // Refactor: el precio base se obtiene con precioBase(r) en lugar de calcularlo aquí.
-        double base = precioBase(r);
-        if (tipo.equals("general")) {
-            return base;
-        } else if (tipo.equals("socio")) {
-            return descuentoDel15(base);
-        }
-        return base;
+    // Tecnica usada: Replace parameter with explicit methods
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - Se elimino calcularPrecio(Reserva r, String tipo) y su if/else con textos.
+    //   - Se crearon calcularPrecioGeneral(r) y calcularPrecioSocio(r).
+    public double calcularPrecioGeneral(Reserva r) {
+        return precioBase(r);
+    }
+
+    public double calcularPrecioSocio(Reserva r) {
+        return descuentoDel15(precioBase(r));
     }
 
     // Tecnica usada: Replace parameter with method
