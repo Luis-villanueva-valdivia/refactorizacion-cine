@@ -15,7 +15,15 @@ public class SistemaReservas {
         try {
             List<String> lista = new ArrayList<>();
             for (int i = 0; i < filas.length; i++) {
-                f.ocupar(filas[i], numeros[i]);   // si falla a mitad, los anteriores ya quedaron ocupados
+                // TÉCNICA UTILIZADA: Separate query from modifier
+                // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+                //   - En lugar de llamar a f.ocupar(), primero se pregunta con f.estaLibre()
+                //     y después se marca con f.marcarOcupado().
+                //   - Se conserva la excepción y el bug de F7 para no cambiar la salida (se corrigen en ISS-07).
+                if (!f.estaLibre(filas[i], numeros[i])) {
+                    throw new IllegalStateException("Asiento ocupado: " + filas[i] + numeros[i]);
+                }
+                f.marcarOcupado(filas[i], numeros[i]);   // si falla a mitad, los anteriores ya quedaron ocupados
                 lista.add("" + filas[i] + numeros[i]);
             }
             Cliente c = new Cliente(nombre, email, socio);
@@ -54,7 +62,9 @@ public class SistemaReservas {
         if (r == null) return -1;
         if (r.cancelada) return -2;
         for (String a : r.asientos) {
-            r.funcion.ocupados.remove(a);
+            // TÉCNICA UTILIZADA: Hide method
+            // REFACTOR: ocupados ya es privada, así que se libera el asiento con liberar().
+            r.funcion.liberar(a);
         }
         r.setCancelada(true);
         return 0;
