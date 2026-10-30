@@ -12,29 +12,29 @@ public class SistemaReservas {
                      char[] filas, int[] numeros, boolean imprimir, String canal) {
         if (nombre == null || f == null) return -1;
         if (filas.length == 0 || filas.length != numeros.length) return -2;
-        try {
-            List<String> lista = new ArrayList<>();
-            for (int i = 0; i < filas.length; i++) {
-                // TÉCNICA UTILIZADA: Separate query from modifier
-                // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
-                //   - En lugar de llamar a f.ocupar(), primero se pregunta con f.estaLibre()
-                //     y después se marca con f.marcarOcupado().
-                //   - Se conserva la excepción y el bug de F7 para no cambiar la salida (se corrigen en ISS-07).
-                if (!f.estaLibre(filas[i], numeros[i])) {
-                    throw new IllegalStateException("Asiento ocupado: " + filas[i] + numeros[i]);
-                }
-                f.marcarOcupado(filas[i], numeros[i]);   // si falla a mitad, los anteriores ya quedaron ocupados
-                lista.add("" + filas[i] + numeros[i]);
+        // TÉCNICA UTILIZADA: Replace exception with test
+        // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+        //   - Se quitó el try/catch (IllegalStateException) que se usaba para controlar el flujo.
+        //   - Ahora primero se revisan TODOS los asientos con f.estaLibre() y, solo si todos
+        //     están libres, se marcan con f.marcarOcupado().
+        //   - Esto corrige el bug de F7: si un asiento está ocupado no se marca ninguno,
+        //     así que Luis ya no deja asientos bloqueados (único cambio de comportamiento permitido).
+        for (int i = 0; i < filas.length; i++) {
+            if (!f.estaLibre(filas[i], numeros[i])) {
+                return -3;
             }
-            Cliente c = new Cliente(nombre, email, socio);
-            Reserva r = new Reserva(contador, c, f, lista);
-            r.precio = calcularPrecio(r, socio ? "socio" : "general");
-            db.put(contador, r);
-            contador++;
-            return r.id;
-        } catch (IllegalStateException e) {
-            return -3;
         }
+        List<String> lista = new ArrayList<>();
+        for (int i = 0; i < filas.length; i++) {
+            f.marcarOcupado(filas[i], numeros[i]);
+            lista.add("" + filas[i] + numeros[i]);
+        }
+        Cliente c = new Cliente(nombre, email, socio);
+        Reserva r = new Reserva(contador, c, f, lista);
+        r.precio = calcularPrecio(r, socio ? "socio" : "general");
+        db.put(contador, r);
+        contador++;
+        return r.id;
     }
 
     // Tipo de tarifa como String y if/else
