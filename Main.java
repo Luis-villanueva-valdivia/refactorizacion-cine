@@ -15,7 +15,9 @@ public class Main {
         // REFACTOR: ocupados ya es privada, así que se lee con getOcupados().
         System.out.println("Ocupados: " + f.getOcupados());
 
-        Reserva ana = (Reserva) s.buscar(1);
+        // Tecnica usada: Encapsulate downcast
+        // Refactor: buscar() ya devuelve Reserva, así que se quitó el casteo (Reserva).
+        Reserva ana = s.buscar(1);
         System.out.println("Precio Ana (socio): " + ana.precio);
 
         System.out.println("Cancelar 1: " + s.cancelar(1));
