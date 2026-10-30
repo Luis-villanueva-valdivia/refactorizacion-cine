@@ -44,13 +44,23 @@ public class SistemaReservas {
 
     // Tipo de tarifa como String y if/else
     public double calcularPrecio(Reserva r, String tipo) {
-        double base = r.funcion.precio * r.asientos.size();
+        // Tecnica usada: Replace parameter with method
+        // Refactor: el precio base se obtiene con precioBase(r) en lugar de calcularlo aquí.
+        double base = precioBase(r);
         if (tipo.equals("general")) {
             return base;
         } else if (tipo.equals("socio")) {
             return descuentoDel15(base);
         }
         return base;
+    }
+
+    // Tecnica usada: Replace parameter with method
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - Se creo precioBase(r), que obtiene el precio de r.funcion y r.asientos.
+    //   - Los metodos de precio ya no dependen de un precio calculado por fuera.
+    public double precioBase(Reserva r) {
+        return r.funcion.precio * r.asientos.size();
     }
 
     public double descuentoDel15(double p) {
