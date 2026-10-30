@@ -33,7 +33,9 @@ public class SistemaReservas {
             }
             Cliente c = new Cliente(nombre, email, socio);
             Reserva r = new Reserva(contador, c, f, lista);
-            r.precio = calcularPrecio(r, socio ? "socio" : "general");
+            // Tecnica usada: Replace parameter with explicit methods
+            // Refactor: se llama al metodo explicito segun el cliente, en lugar de pasar "socio"/"general".
+            r.precio = socio ? calcularPrecioSocio(r) : calcularPrecioGeneral(r);
             db.put(contador, r);
             contador++;
             return r.id;
@@ -42,23 +44,34 @@ public class SistemaReservas {
         }
     }
 
-    // Tipo de tarifa como String y if/else
-    public double calcularPrecio(Reserva r, String tipo) {
-        double base = r.funcion.precio * r.asientos.size();
-        if (tipo.equals("general")) {
-            return base;
-        } else if (tipo.equals("socio")) {
-            return descuentoDel15(base);
-        }
-        return base;
+    // Tecnica usada: Replace parameter with explicit methods
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - Se elimino calcularPrecio(Reserva r, String tipo) y su if/else con textos.
+    //   - Se crearon calcularPrecioGeneral(r) y calcularPrecioSocio(r).
+    public double calcularPrecioGeneral(Reserva r) {
+        return precioBase(r);
     }
 
-    public double descuentoDel15(double p) {
-        return p - p * 0.15;
+    public double calcularPrecioSocio(Reserva r) {
+        // Tecnica usada: Parameterize method
+        // Refactor: se usa aplicarDescuento() con 0.15 en lugar de descuentoDel15().
+        return aplicarDescuento(precioBase(r), 0.15);
     }
 
-    public double descuentoDel25(double p) {   // duplicado, sin uso
-        return p - p * 0.25;
+    // Tecnica usada: Replace parameter with method
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - Se creo precioBase(r), que obtiene el precio de r.funcion y r.asientos.
+    //   - Los metodos de precio ya no dependen de un precio calculado por fuera.
+    public double precioBase(Reserva r) {
+        return r.funcion.precio * r.asientos.size();
+    }
+
+    // Tecnica usada: Parameterize method
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   - descuentoDel15() y descuentoDel25() se reemplazaron por aplicarDescuento(precio, porcentaje).
+    //   - El porcentaje se pasa como parametro (0.15 = 15%).
+    public double aplicarDescuento(double precio, double porcentaje) {
+        return precio - precio * porcentaje;
     }
 
     public int cancelar(int id) {
