@@ -7,6 +7,7 @@ public class Funcion {
     public int sala;
     public String hora;
     public double precio;
+
     // TÉCNICA UTILIZADA: Hide method
     // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
     //   - ocupados pasó de public a private, para que ninguna otra clase la modifique directo.
@@ -26,8 +27,7 @@ public class Funcion {
     //   - ocupar() hacía dos cosas: revisaba si el asiento estaba libre y además lo marcaba.
     //   - Se dividió en estaLibre() (consulta: solo responde true/false, no cambia nada)
     //     y marcarOcupado() (modificador: solo agrega el asiento a la lista).
-    //   - La validación que lanzaba la excepción se movió a SistemaReservas.hacer(),
-    //     para que la salida siga siendo idéntica (el try/catch se quita en ISS-07).
+    //   - La validación que lanzaba la excepción se movió a SistemaReservas.reservar().
     public boolean estaLibre(char fila, int numero) {
         return !ocupados.contains("" + fila + numero);
     }
@@ -45,7 +45,6 @@ public class Funcion {
     }
 
     // TÉCNICA UTILIZADA: Remove setting method
-    // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
-    //   - Se eliminó setPrecio(double) porque nadie lo usaba y el precio
-    //     de una función solo debe fijarse una vez, en el constructor.
+    // REFACTOR: Se eliminó setPrecio(double) porque nadie lo usaba y el precio
+    // de una función solo debe fijarse una vez, en el constructor.
 }
