@@ -44,7 +44,8 @@ public class Funcion {
         ocupados.remove(codigo);
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
+    // TÉCNICA UTILIZADA: Remove setting method
+    // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+    //   - Se eliminó setPrecio(double) porque nadie lo usaba y el precio
+    //     de una función solo debe fijarse una vez, en el constructor.
 }
