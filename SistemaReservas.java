@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 public class SistemaReservas {
-    public Map<Integer, Object> db = new HashMap<>();
+    // Tecnica usada: Encapsulate downcast
+    // Refactor: Al aplicar esta tecnica se realizaron los siguientes cambios:
+    //   db se tipo como Map<Integer, Reserva> en lugar de Map<Integer, Object>
+    //   buscar() devuelve Reserva en lugar de Object
+    //   Se eliminaron los casteos (Reserva) en cancelar() y en Main
+    public Map<Integer, Reserva> db = new HashMap<>();
     public int contador = 1;
 
     // Nombre poco claro, muchos parámetros sueltos, flag sin uso y códigos de error
@@ -66,14 +71,15 @@ public class SistemaReservas {
         return p - p * 0.25;
     }
 
-    // Downcast repetido en cada llamada
     // TÉCNICA UTILIZADA: Replace error code with exception
     // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
     //   - cancelar() ya no devuelve 0, -1 o -2; ahora es void.
     //   - Si la reserva no existe lanza IllegalArgumentException.
     //   - Si ya estaba cancelada lanza IllegalStateException.
     public void cancelar(int id) {
-        Reserva r = (Reserva) db.get(id);
+        // TÉCNICA UTILIZADA: Encapsulate downcast
+        // REFACTOR: se usa buscar(), que ya devuelve Reserva, en lugar de (Reserva) db.get(id).
+        Reserva r = buscar(id);
         if (r == null) {
             throw new IllegalArgumentException("No existe la reserva " + id);
         }
@@ -85,10 +91,12 @@ public class SistemaReservas {
             // REFACTOR: ocupados ya es privada, así que se libera el asiento con liberar().
             r.funcion.liberar(a);
         }
-        r.setCancelada(true);
+        r.cancelar();
     }
 
-    public Object buscar(int id) {
+    // Tecnica usada: Encapsulate downcast
+    // Refactor: devuelve Reserva en lugar de Object; quien la usa ya no hace casteo.
+    public Reserva buscar(int id) {
         return db.get(id);
     }
 }
