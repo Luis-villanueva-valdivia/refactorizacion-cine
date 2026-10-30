@@ -62,7 +62,9 @@ public class SistemaReservas {
         if (r == null) return -1;
         if (r.cancelada) return -2;
         for (String a : r.asientos) {
-            r.funcion.ocupados.remove(a);
+            // TÉCNICA UTILIZADA: Hide method
+            // REFACTOR: ocupados ya es privada, así que se libera el asiento con liberar().
+            r.funcion.liberar(a);
         }
         r.setCancelada(true);
         return 0;

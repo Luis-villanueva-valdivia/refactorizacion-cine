@@ -11,7 +11,9 @@ public class Main {
         int r2 = s.hacer("Luis", "luis@mail.com", false, f,
                 new char[]{'F', 'F'}, new int[]{7, 6}, false, "Taquilla");
         System.out.println("Reserva Luis: " + r2);
-        System.out.println("Ocupados: " + f.ocupados);
+        // TÉCNICA UTILIZADA: Hide method
+        // REFACTOR: ocupados ya es privada, así que se lee con getOcupados().
+        System.out.println("Ocupados: " + f.getOcupados());
 
         Reserva ana = (Reserva) s.buscar(1);
         System.out.println("Precio Ana (socio): " + ana.precio);

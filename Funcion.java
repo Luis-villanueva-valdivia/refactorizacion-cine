@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Funcion {
@@ -6,7 +7,12 @@ public class Funcion {
     public int sala;
     public String hora;
     public double precio;
-    public List<String> ocupados = new ArrayList<>();
+    // TÉCNICA UTILIZADA: Hide method
+    // REFACTOR: Al aplicar esta técnica se realizaron los siguientes cambios:
+    //   - ocupados pasó de public a private, para que ninguna otra clase la modifique directo.
+    //   - Se agregó getOcupados(), que devuelve una copia de solo lectura (para imprimir en Main).
+    //   - Se agregó liberar(), que es la única forma de quitar un asiento (la usa cancelar()).
+    private List<String> ocupados = new ArrayList<>();
 
     public Funcion(String titulo, int sala, String hora, double precio) {
         this.titulo = titulo;
@@ -28,6 +34,14 @@ public class Funcion {
 
     public void marcarOcupado(char fila, int numero) {
         ocupados.add("" + fila + numero);
+    }
+
+    public List<String> getOcupados() {
+        return Collections.unmodifiableList(ocupados);
+    }
+
+    public void liberar(String codigo) {
+        ocupados.remove(codigo);
     }
 
     public void setPrecio(double precio) {
